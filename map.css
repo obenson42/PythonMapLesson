@@ -1,0 +1,14 @@
+.volcano_info {
+    margin-bottom: 0;
+    padding: 2px;
+    background-color: #666;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.volcano_info a {
+    color: #fff;
+    font-weight: bold;
+}
+.info_label {
+    font-weight: bold;
+    width: 20%;
+}
