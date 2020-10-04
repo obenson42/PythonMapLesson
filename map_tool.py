@@ -1,3 +1,4 @@
+import branca
 import folium
 import pandas
 
@@ -22,7 +23,6 @@ def color_from_population(pop):
     return colors[int(indx)]
 
 map = folium.Map(location=[38.58, -110], zoom_start=6, tiles="Stamen Terrain")
-#<link rel="stylesheet" href="map.css"/>
 
 volcanoes = pandas.read_csv("volcanoes.txt")
 
@@ -35,24 +35,27 @@ status = list(volcanoes["STATUS"])
 type = list(volcanoes["TYPE"])
 elev = list(volcanoes["ELEV"])
 
-html = """<div class="volcano_info">
-<a href="https://www.google.co.uk/search?q=volcano %s" target="_blank">%s</a>
+cssLink = "<link rel='stylesheet' href='map.css'/>"
+
+html = """<div class='volcano_info'>
+<a href='https://www.google.co.uk/search?q=volcano %s' target='_blank'>%s</a>
 </div>
-<span class="info_label">Height:</span> %sm<br>
-<span class="info_label">Status:</span> %s"""
+<span class='info_label'>Height:</span> %sm<br>
+<span class='info_label'>Status:</span> %s"""
 
 for lt, ln, nm, st, ty, el in zip(lat, lon, names, status, type, elev):
-    iframe = folium.IFrame(html=html % (nm, nm, str(el), st), width=300, height=100)
+    iframe = branca.element.IFrame(html=html % (nm, nm, str(el), st), width=300, height=100)
     color = color_from_elevation(el)
-    #fgv.add_child(folium.Marker(location=[lt, ln], popup=folium.Popup(iframe), icon=folium.Icon(color=color)))
-    fgv.add_child(folium.CircleMarker(location=[lt, ln], color=color, fill_color=color, fill=True, popup=folium.Popup(iframe)))
-
-map.add_child(fgv)
+    if st == 'Historical':
+        fgv.add_child(folium.Marker(location=[lt, ln], popup=cssLink + html % (nm, nm, str(el), st), icon=folium.Icon(color=color, icon_color='gray')))
+    else:
+        fgv.add_child(folium.CircleMarker(location=[lt, ln], color=color, fill_color=color, fill=True, popup=cssLink + html % (nm, nm, str(el), st)))
 
 fgp = folium.FeatureGroup(name="Countries")
 fgp.add_child(folium.GeoJson(data=open("world.json", 'r', encoding="utf-8-sig").read(), style_function=lambda x: {'fillColor':color_from_population(x["properties"]["POP2005"])}))
 
-map.add_child(fgp)
+map.add_child(fgp) # add country population first otherwise user can't click on volcanoes for info
+map.add_child(fgv)
 
 map.add_child(folium.LayerControl())
 
